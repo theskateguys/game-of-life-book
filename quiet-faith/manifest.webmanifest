@@ -1,0 +1,14 @@
+{
+  "name": "Quiet Faith · A Visual Devotional",
+  "short_name": "Quiet Faith",
+  "description": "A colour Bible study and devotional: scripture, prayers, daily rhythm and a tracker.",
+  "start_url": "/quiet-faith/",
+  "scope": "/quiet-faith/",
+  "display": "standalone",
+  "background_color": "#0f1613",
+  "theme_color": "#0f1613",
+  "icons": [
+    { "src": "/quiet-faith/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "/quiet-faith/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

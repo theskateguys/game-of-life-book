@@ -468,6 +468,9 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
 .qc-acts .btn { flex: 1; justify-content: center; }
 .qc-x { width: 42px; height: 42px; border-radius: 50%; border: 1px solid rgba(255,255,255,.25); background: transparent; color: #f3eee2; cursor: pointer; font-size: 1rem; }
 
+.lib-link { margin-top: 6px; font-family: var(--f-label); font-size: .82rem; letter-spacing: .06em; color: var(--ink2); text-decoration: none; border-bottom: 1px dashed var(--line); padding-bottom: 2px; }
+.lib-link b { color: var(--gold); font-weight: 600; }
+
 </style>
 
 <div class="topbar band" role="banner">
@@ -504,6 +507,7 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
       <a class="btn gold" href="#ch1">Begin reading</a>
       <a class="btn ghost" href="#ch1" id="btn-continue" hidden>Continue</a>
     </div>
+    <a class="lib-link" href="/quiet-faith/">Also in this library: <b>Quiet Faith</b>, a visual devotional →</a>
   </div>
 </section>
 
@@ -1079,6 +1083,13 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
 /* ===== site features: today, streak, journal, listen, quote cards, highlights, search, install ===== */
 (function () {
   var G = window.GOL || {};
+  var B = Object.assign({
+    title: 'The Game of Life · Colour Edition', credit: 'Florence Scovel Shinn · The Game of Life',
+    unit: 'Chapter', units: 10, affLabel: 'Affirmation of the day', journalTitle: 'My Game of Life journal',
+    cardFooter: 'THE GAME OF LIFE \u00b7 COLOUR EDITION', homeBg: '#0d1120',
+    shareText: 'A colour reading edition of The Game of Life by Florence Scovel Shinn, with scriptures and affirmations.',
+    hues: ['#ff8f63', '#55d6a8', '#79adff', '#79d7ea', '#c79cff', '#ff9fc4', '#ff6f86', '#a6e36a', '#ffb86e', '#4fd8c4'], prompts: null
+  }, window.BOOK || {});
   var store = G.store, toast = G.toast;
   var root = document.documentElement;
   var $ = function (s, el) { return (el || document).querySelector(s); };
@@ -1186,6 +1197,7 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
     if (active) { readSec += 5; if (readSec >= 60) markToday('time'); }
   }, 5000);
   document.addEventListener('click', function (e) { if (e.target.closest('.mark-read')) setTimeout(function () { markToday('mark'); }, 50); });
+  document.addEventListener('book:read', function () { markToday('tracker'); });
 
   /* ---------- today section ---------- */
   var today = document.createElement('section');
@@ -1199,7 +1211,7 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
     (v ? '<article class="t-card t-verse"><span class="eyebrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 6.5C10 5 7 4.5 3.5 5v13c3.5-.5 6.5 0 8.5 1.5 2-1.5 5-2 8.5-1.5V5C17 4.5 14 5 12 6.5zM12 6.5v13" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>Verse of the day</span>' +
       '<blockquote>' + esc(v.t) + '</blockquote><span class="t-ref">' + esc(v.r) + '</span>' +
       '<div class="acts"><button type="button" data-card="verse">' + ICON.card + '<span>Quote card</span></button><button type="button" class="btn-copy" data-copy="' + esc(v.t + ' (' + v.r + ')') + '"><span>Copy</span></button></div></article>' : '') +
-    (a ? '<article class="t-card t-aff"><span class="eyebrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/></svg>Affirmation of the day</span>' +
+    (a ? '<article class="t-card t-aff"><span class="eyebrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor"/></svg>' + esc(B.affLabel) + '</span>' +
       '<blockquote>' + esc(a.t) + '</blockquote>' +
       '<div class="acts"><button type="button" class="btn-say" data-say="' + esc(a.t) + '"><span>Say it aloud</span></button><button type="button" data-card="aff">' + ICON.card + '<span>Quote card</span></button></div></article>' : '') +
     '<article class="t-card t-streak" id="t-streak"><span class="eyebrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3c1 4 5 5.5 5 10a5 5 0 0 1-10 0c0-2.5 1.5-4 2.5-5 .3 2 1.5 3 2.5 3 0-3-1-5 0-8z" fill="currentColor"/></svg>Reading streak</span>' +
@@ -1238,7 +1250,7 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
   document.addEventListener('click', function (e) {
     var b = e.target.closest('[data-card]'); if (!b) return;
     if (b.dataset.card === 'verse' && v) openQC(v.t, v.r, v.ch);
-    else if (b.dataset.card === 'aff' && a) openQC(a.t, 'Florence Scovel Shinn · The Game of Life', a.ch);
+    else if (b.dataset.card === 'aff' && a) openQC(a.t, B.credit, a.ch);
   });
 
   /* ---------- quote-card buttons on plates, pulls, cards ---------- */
@@ -1252,21 +1264,21 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
   });
   $$('.pull').forEach(function (pl) {
     var btn = document.createElement('button'); btn.type = 'button'; btn.className = 'card-btn'; btn.innerHTML = ICON.card + '<span>Quote card</span>';
-    btn.addEventListener('click', function () { openQC(cleanQuote($('p', pl).textContent), 'Florence Scovel Shinn · The Game of Life', chOf(pl)); });
+    btn.addEventListener('click', function () { openQC(cleanQuote($('p', pl).textContent), B.credit, chOf(pl)); });
     pl.appendChild(btn);
   });
   $$('.speak .acts, .dcard .acts').forEach(function (ac) {
     var btn = document.createElement('button'); btn.type = 'button'; btn.innerHTML = ICON.card + '<span>Card</span>';
     btn.addEventListener('click', function () {
       var bq = $('blockquote', ac.parentNode);
-      openQC(cleanQuote(bq.innerText || bq.textContent), 'Florence Scovel Shinn · The Game of Life', chOf(ac));
+      openQC(cleanQuote(bq.innerText || bq.textContent), B.credit, chOf(ac));
     });
     ac.appendChild(btn);
   });
 
   /* ---------- journal ---------- */
   var journal = store.get('journal', {});
-  var PROMPTS = {
+  var PROMPTS = B.prompts || {
     1: 'What words have I been speaking over my life? What will I say instead?',
     2: 'What ditch will I dig this week, before I see any sign of the answer?',
     3: 'Where do I need to guard my words? Who do I need to bless?',
@@ -1282,9 +1294,9 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
     var n = +ch.dataset.n, grid = $('.end-grid', ch); if (!grid) return;
     var box = document.createElement('div'); box.className = 'journal';
     var entry = journal[n] || {};
-    box.innerHTML = '<span class="eyebrow">' + ICON.pen + 'My notes · Chapter ' + n + '</span>' +
-      '<p class="j-prompt">' + esc(PROMPTS[n] || 'What is God showing me in this chapter?') + '</p>' +
-      '<textarea id="journal-' + n + '" aria-label="My notes for chapter ' + n + '" placeholder="Write here. It saves on this device as you type.">' + esc(entry.text || '') + '</textarea>' +
+    box.innerHTML = '<span class="eyebrow">' + ICON.pen + 'My notes · ' + B.unit + ' ' + n + '</span>' +
+      '<p class="j-prompt">' + esc(PROMPTS[n] || 'What is God showing me in this ' + B.unit.toLowerCase() + '?') + '</p>' +
+      '<textarea id="journal-' + n + '" aria-label="My notes for ' + B.unit.toLowerCase() + ' ' + n + '" placeholder="Write here. It saves on this device as you type.">' + esc(entry.text || '') + '</textarea>' +
       '<div class="j-status" id="js-' + n + '">' + (entry.at ? 'Saved ' + new Date(entry.at).toLocaleString(undefined, { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' }) : '') + '</div>';
     grid.appendChild(box);
     var ta = $('textarea', box), st = $('.j-status', box), tmr;
@@ -1300,7 +1312,7 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
   function journalText() {
     journal = store.get('journal', {});
     return Object.keys(journal).sort(function (x, y) { return x - y; }).map(function (n) {
-      return 'Chapter ' + n + ' · ' + chTitle(n) + '\n' + journal[n].text.trim();
+      return B.unit + ' ' + n + ' · ' + chTitle(n) + '\n' + journal[n].text.trim();
     }).join('\n\n');
   }
   function openJournal() {
@@ -1308,12 +1320,12 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
     var keys = Object.keys(journal).sort(function (x, y) { return x - y; });
     var html = keys.length ? '<div class="p-top"><button type="button" class="go" id="j-copy">Copy all</button>' + (navigator.share ? '<button type="button" id="j-share">Share</button>' : '') + '</div><ul class="p-list">' +
       keys.map(function (n) {
-        return '<li style="--hue: var(--c' + n + ')"><div class="pl-k">Chapter ' + n + ' · ' + esc(chTitle(n)) + '</div><div class="pl-t">' + esc(journal[n].text) + '</div><div class="pl-acts"><button type="button" data-jgo="' + n + '">Open</button></div></li>';
+        return '<li style="--hue: var(--c' + n + ')"><div class="pl-k">' + B.unit + ' ' + n + ' · ' + esc(chTitle(n)) + '</div><div class="pl-t">' + esc(journal[n].text) + '</div><div class="pl-acts"><button type="button" data-jgo="' + n + '">Open</button></div></li>';
       }).join('') + '</ul>'
-      : '<p class="p-empty">No notes yet. At the end of every chapter there is a box with a question to answer. What you write saves on this device.</p>';
+      : '<p class="p-empty">No notes yet. At the end of every ' + B.unit.toLowerCase() + ' there is a box with a question to answer. What you write saves on this device.</p>';
     openPanel('My journal', html);
     var c = $('#j-copy'); if (c) c.addEventListener('click', function () { copyText(journalText()); });
-    var s = $('#j-share'); if (s) s.addEventListener('click', function () { navigator.share({ title: 'My Game of Life journal', text: journalText() }).catch(function () {}); });
+    var s = $('#j-share'); if (s) s.addEventListener('click', function () { navigator.share({ title: B.journalTitle, text: journalText() }).catch(function () {}); });
     $$('[data-jgo]', panelBody).forEach(function (b) { b.addEventListener('click', function () { closePanel(); var ta = $('#journal-' + b.dataset.jgo); goTo(ta.closest('.journal')); setTimeout(function () { ta.focus({ preventScroll: true }); }, 600); }); });
   }
 
@@ -1357,7 +1369,7 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
     hls = store.get('highlights', []);
     var list = hls.slice().sort(function (x, y) { return x.ch - y.ch || x.at - y.at; });
     var html = list.length ? '<ul class="p-list">' + list.map(function (h) {
-      return '<li style="--hue: var(--c' + h.ch + ')"><div class="pl-k">Chapter ' + h.ch + ' · ' + esc(chTitle(h.ch)) + '</div><div class="pl-t">“' + esc(h.text) + '”</div>' +
+      return '<li style="--hue: var(--c' + h.ch + ')"><div class="pl-k">' + B.unit + ' ' + h.ch + ' · ' + esc(chTitle(h.ch)) + '</div><div class="pl-t">“' + esc(h.text) + '”</div>' +
         '<div class="pl-acts"><button type="button" data-hgo="' + h.id + '">Go to it</button><button type="button" data-hcard="' + h.id + '">Quote card</button><button type="button" data-hdel="' + h.id + '">Remove</button></div></li>';
     }).join('') + '</ul>' : '<p class="p-empty">No highlights yet. Press and hold (or drag over) any words in the book, then tap Highlight.</p>';
     openPanel('My highlights', html);
@@ -1372,7 +1384,7 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
     if (v && v.nextElementSibling && v.nextElementSibling.classList.contains('ref')) return v.nextElementSibling.textContent;
     var pl = m && m.closest && m.closest('.plate');
     if (pl && $('figcaption', pl)) return $('figcaption', pl).textContent.trim();
-    return 'Florence Scovel Shinn · The Game of Life';
+    return B.credit;
   }
 
   /* ---------- selection toolbar ---------- */
@@ -1420,7 +1432,7 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
     else if (act === 'unhl') deleteHL(st.hid);
     else if (act === 'hl') {
       var el = st.block.matches('[data-pid]') ? st.block : null;
-      if (!el) { toast('Highlights work on the chapter text'); }
+      if (!el) { toast('Highlights work on the main text'); }
       else if (!el.contains(st.range.endContainer)) { toast('Highlight one paragraph at a time'); }
       else {
         var s0 = textOffset(el, st.range.startContainer, st.range.startOffset), e0 = textOffset(el, st.range.endContainer, st.range.endOffset);
@@ -1451,7 +1463,7 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
         res.innerHTML = hits.slice(0, 60).map(function (b, i) {
           var at = b.t.toLowerCase().indexOf(s), a0 = Math.max(0, at - 70), a1 = Math.min(b.t.length, at + s.length + 90);
           var snip = (a0 ? '…' : '') + esc(b.t.slice(a0, at)) + '<mark>' + esc(b.t.slice(at, at + s.length)) + '</mark>' + esc(b.t.slice(at + s.length, a1)) + (a1 < b.t.length ? '…' : '');
-          return '<li style="--hue: var(--c' + b.ch + ')"><a href="#" class="res" data-i="' + blocks.indexOf(b) + '"><div class="pl-k">Chapter ' + b.ch + ' · ' + esc(chTitle(b.ch)) + '</div><div class="pl-t">' + snip + '</div></a></li>';
+          return '<li style="--hue: var(--c' + b.ch + ')"><a href="#" class="res" data-i="' + blocks.indexOf(b) + '"><div class="pl-k">' + B.unit + ' ' + b.ch + ' · ' + esc(chTitle(b.ch)) + '</div><div class="pl-t">' + snip + '</div></a></li>';
         }).join('');
       }, 180);
     });
@@ -1460,7 +1472,7 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
 
   /* ---------- share + install ---------- */
   function shareBook() {
-    var url = location.origin + location.pathname, data = { title: 'The Game of Life · Colour Edition', text: 'A colour reading edition of The Game of Life by Florence Scovel Shinn, with scriptures and affirmations.', url: url };
+    var url = location.origin + location.pathname, data = { title: B.title, text: B.shareText, url: url };
     if (navigator.share) navigator.share(data).catch(function () {}); else copyText(url);
   }
   var deferredPrompt = null;
@@ -1491,7 +1503,7 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
   }
   function pPaint() {
     var tot = player.list.length;
-    $('#p-k').textContent = 'Chapter ' + player.ch + ' · paragraph ' + Math.min(player.bi + 1, tot) + ' of ' + tot;
+    $('#p-k').textContent = B.unit + ' ' + player.ch + ' · paragraph ' + Math.min(player.bi + 1, tot) + ' of ' + tot;
     $('#p-t').textContent = chTitle(player.ch);
     $('#p-prog').style.width = (tot ? (player.bi / tot) * 100 : 0) + '%';
     $('#p-play').setAttribute('aria-label', player.playing ? 'Pause' : 'Play');
@@ -1501,7 +1513,7 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
   function speakNext() {
     if (!player.playing) return;
     var b = player.list[player.bi];
-    if (!b) { player.playing = false; pPaint(); toast(player.ch < 10 ? 'Chapter ' + player.ch + ' finished. Tap Next for Chapter ' + (player.ch + 1) + '.' : 'You finished the book.'); markToday('listen'); return; }
+    if (!b) { player.playing = false; pPaint(); toast(player.ch < B.units ? B.unit + ' ' + player.ch + ' finished. Tap Next for ' + B.unit + ' ' + (player.ch + 1) + '.' : 'You finished the whole thing.'); markToday('listen'); return; }
     if (player.ci === 0) {
       $$('.speaking').forEach(function (x) { x.classList.remove('speaking'); });
       b.classList.add('speaking');
@@ -1530,7 +1542,7 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
   function pStop() { player.on = false; player.playing = false; player.token++; synth && synth.cancel(); $('#player').hidden = true; document.body.classList.remove('playing'); $$('.speaking').forEach(function (x) { x.classList.remove('speaking'); }); }
   function pJump(d) {
     var nb = player.bi + d;
-    if (nb >= player.list.length && player.ch < 10) { pStart(player.ch + 1); goTo($('#ch' + player.ch)); return; }
+    if (nb >= player.list.length && player.ch < B.units) { pStart(player.ch + 1); goTo($('#ch' + player.ch)); return; }
     player.bi = Math.max(0, Math.min(player.list.length - 1, nb)); player.ci = 0; player.token++; synth.cancel(); player.playing = true; pPaint(); speakNext();
   }
   if (!synth || typeof SpeechSynthesisUtterance === 'undefined') { /* no read-aloud on this device */ }
@@ -1561,10 +1573,10 @@ mark.v mark.hl { -webkit-text-fill-color: var(--gold); }
   var SIZES = { post: [1080, 1350], story: [1080, 1920], square: [1080, 1080] };
   $('#qc-handle').value = store.get('handle', '');
   function cssVar(name) { return getComputedStyle(root).getPropertyValue(name).trim(); }
-  var DARKHUES = ['#ff8f63', '#55d6a8', '#79adff', '#79d7ea', '#c79cff', '#ff9fc4', '#ff6f86', '#a6e36a', '#ffb86e', '#4fd8c4'];
+  var DARKHUES = B.hues;
   function palette() {
     var hue = DARKHUES[(qs.ch || 1) - 1] || '#eec05c';
-    if (qs.style === 'chapter') return { bg1: '#0d1120', bg2: hue, ink: '#fffaf0', acc: '#fffaf0', sub: 'rgba(255,250,240,.82)', ray: 'rgba(255,255,255,.07)', mix: .38 };
+    if (qs.style === 'chapter') return { bg1: B.homeBg, bg2: hue, ink: '#fffaf0', acc: '#fffaf0', sub: 'rgba(255,250,240,.82)', ray: 'rgba(255,255,255,.07)', mix: .38 };
     if (qs.style === 'sunrise') return { bg1: '#2a1036', bg2: '#ff9a5a', ink: '#fff6ea', acc: '#ffe1a6', sub: 'rgba(255,246,234,.85)', ray: 'rgba(255,230,180,.10)', mix: 1 };
     if (qs.style === 'paper') return { bg1: '#fbf6ea', bg2: '#f1e6cc', ink: '#1a1f30', acc: '#9c6c12', sub: '#4b5168', ray: 'rgba(156,108,18,.08)', mix: 1 };
     return { bg1: '#0b0f1d', bg2: '#1b2440', ink: '#f6efdc', acc: '#eec05c', sub: 'rgba(246,239,220,.78)', ray: 'rgba(238,192,92,.10)', mix: 1 };

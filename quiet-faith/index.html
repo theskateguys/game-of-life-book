@@ -711,7 +711,7 @@ a.sref:hover { text-decoration-color: var(--gold); }
       <a class="btn gold" href="#ch1">Begin reading</a>
       <a class="btn ghost" href="#ch1" id="btn-continue" hidden>Continue</a>
     </div>
-    <a class="lib-link" href="/">Also in this library: <b>The Game of Life</b> →</a>
+    <a class="lib-link" href="/">← Back to <b>the bookshelf</b></a>
   </div>
 </section><section class="legend band" aria-labelledby="legend-h">
   <div class="inner">
@@ -2192,5 +2192,6 @@ a.sref:hover { text-decoration-color: var(--gold); }
   paintPlan();
 })();
 </script>
+<script>if (location.hash === '#continue') { addEventListener('load', function () { setTimeout(function () { var r = document.getElementById('resume'), b = document.getElementById('resume-go'); if (b && r && !r.hidden) b.click(); }, 300); }); }</script>
 </body>
 </html>
